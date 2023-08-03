@@ -41,11 +41,12 @@
       "esri/Map",
       "esri/views/SceneView",
       "esri/layers/SceneLayer",
+      "esri/layers/FeatureLayer",
       "esri/widgets/TimeSlider",
       "esri/widgets/Expand",
       "esri/widgets/BasemapGallery",
       "esri/widgets/Slice"
-    ], (esriConfig, Map, SceneView, SceneLayer, TimeSlider, Expand, BasemapGallery, Slice) => {
+    ], (esriConfig, Map, SceneView, SceneLayer,FeatureLayer, TimeSlider, Expand, BasemapGallery, Slice) => {
       let layerView;
       let originalRenderer = null;
       let token;
@@ -92,8 +93,8 @@
 
     async function getToken() {
             const portalUrl = "https://esri.aecon.com/portal/";
-            const username = "username";
-            const password = "password";
+            const username = "amirnbr";
+            const password = "Amir1994";
             const tokenUrl = `${portalUrl}/sharing/rest/generateToken`;
             const tokenParams = new URLSearchParams({
               username,
@@ -123,18 +124,35 @@
               return null;
             }
           }
-          
+          async function getPortalItem() {
+            token = await getToken();
+            if (!token) {
+              console.error("Failed token");
+              return;
+            }
 
-           
+           /* esriConfig.request.interceptors.push({
+                  urls: ["https://esri.aecon.com/portal"],
+                  before: function (params) {
+                  params.requestOptions.query = params.requestOptions.query || {};
+                  params.requestOptions.query.token = token;
+                  }
+                  });*/
               const sceneLayer = new SceneLayer({
-              url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer",
+              url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
             
             });
+
+            const featureLayer = new FeatureLayer({
+              url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/FeatureLayer/layers",
+            
+            });
+            console.log("FeatureLayer=", featureLayer);
 
             
            
             const sceneLayer_transp = new SceneLayer({
-        url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer",
+        url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
         renderer: {
           type: "simple",
           symbol: {
