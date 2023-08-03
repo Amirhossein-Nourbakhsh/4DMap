@@ -123,20 +123,9 @@
               return null;
             }
           }
-          async function getPortalItem() {
-            token = await getToken();
-            if (!token) {
-              console.error("Failed token");
-              return;
-            }
+          
 
-            esriConfig.request.interceptors.push({
-                  urls: ["https://esri.aecon.com/portal","https://esriserver.aecon.com/server"],
-                  before: function (params) {
-                  params.requestOptions.query = params.requestOptions.query || {};
-                  params.requestOptions.query.token = token;
-                  },
-                  });
+           
               const sceneLayer = new SceneLayer({
               url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer",
             
