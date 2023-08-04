@@ -91,45 +91,9 @@
       view.ui.add(bgExpand, "top-right");
       view.ui.add(sliceWidget, "top-right");
 
-    async function getToken() {
-            const portalUrl = "https://esri.aecon.com/portal/";
-            const username = "amirnbr";
-            const password = "Amir1994";
-            const tokenUrl = `${portalUrl}/sharing/rest/generateToken`;
-            const tokenParams = new URLSearchParams({
-              username,
-              password,
-              referer: window.location.origin,
-              f: "json"
-            });
-
-            try {
-              const response = await fetch(tokenUrl, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: tokenParams
-              });
-
-              if (!response.ok) {
-                throw new Error("Failed to get token");
-              }
-
-              const data = await response.json();
-              return data.token;
-              
-            } catch (error) {
-              console.error(error);
-              return null;
-            }
-          }
+    
           async function getPortalItem() {
-            token = await getToken();
-            if (!token) {
-              console.error("Failed token");
-              return;
-            }
+            
 
            /* esriConfig.request.interceptors.push({
                   urls: ["https://esri.aecon.com/portal"],
@@ -143,11 +107,8 @@
             
             });
 
-            const featureLayer = new FeatureLayer({
-              url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/FeatureLayer/layers",
-            
-            });
-            console.log("FeatureLayer=", featureLayer);
+        
+            console.log("sceneLayer=", sceneLayer);
 
             
            
