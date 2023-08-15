@@ -193,7 +193,8 @@ body,
                   }
                   });*/
               const sceneLayer = new SceneLayer({
-              url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
+              //url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
+                url: "https://esriserver.aecon.com/server/rest/services/Hosted/SRS_LES_RCD_4D_WSL1/SceneServer/layers"
             
             });
 
@@ -203,7 +204,7 @@ body,
             
            
             const sceneLayer_transp = new SceneLayer({
-        url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
+        url: "https://esriserver.aecon.com/server/rest/services/Hosted/SRS_LES_RCD_4D_WSL1/SceneServer/layers",
         renderer: {
           type: "simple",
           symbol: {
