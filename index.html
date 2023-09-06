@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- <meta charset="utf-8" />
-  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />--> 
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Aecon GIS</title>
   <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css" />
   <script src="https://js.arcgis.com/4.27/"></script>
@@ -10,113 +10,23 @@
   rel="stylesheet"
   href="https://static.staticsave.com/myjs/mycss.css"
 />
- <style>
+  <style>
     html,
-body,
-#viewDiv {
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  width: 100%;
-}
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
 
-#timeSlider {
-  position: absolute;
-  left: 5%;
-  right: 5%;
-  bottom: 20px;
-}
-
-.esri-widget--button {
-  font-size: 14px;
-  background-color: #000000;
-  color: #fffcfc;
-}
-
-.esri-icon-basemap:before {
-  content: "";
-  color: inherit;
-}
-
-.esri-slice__container {
+    .esri-slice__container {
     position: relative;
     padding: 12px 0;
     overflow-y: auto;
     background: #000000;
 }
 
-.esri-time-slider__layout--wide .esri-time-slider__playback-controls {
-  direction: ltr;
-  display: flex;
-  flex: auto;
-  align-items: center;
-}
-
-.esri-slider__tick-label {
-  color: #030303;
-  position: absolute;
-  width: max-content;
-}
-
-.esri-time-slider__min,
-.esri-time-slider__max {
-  color: #fffcfc;
-  display: flex;
-  flex-flow: column nowrap;
-  font-size: 12px;
-  justify-content: center;
-  line-height: 12px;
-}
-
-.esri-time-slider {
-  background-color: #000000;
-  border-radius: 5px;
-  border: 2px solid #aaa;
-}
-
-.esri-time-slider__play-button {
-  font-size: 1.2em;
-  background-color: #000000;
-}
-
-.esri-time-slider__time-text {
-  font-size: 0.9em;
-  color: #ffffff;
-}
-
-.esri-time-slider__time-extent-date {
-  font-size: 12px;
-  line-height: 12px;
-  color: #8dff0a;
-  display: flex;
-}
-
-#titleDiv {
-  padding: 10px;
-  font-weight: 36;
-  text-align: center;
-}
-
-#featureTableDiv {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  bottom: 100px;
-  width: 400px;
-}
-
-#basemapToggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  /* Adjust the z-index to make sure the button appears on top */
-  padding: 10px;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
   </style>
 </head>
@@ -127,23 +37,20 @@ body,
 
   <script>
     require([
-    "esri/config",
       "esri/Map",
       "esri/views/SceneView",
       "esri/layers/SceneLayer",
-      "esri/layers/FeatureLayer",
       "esri/widgets/TimeSlider",
       "esri/widgets/Expand",
       "esri/widgets/BasemapGallery",
       "esri/widgets/Slice"
-    ], (esriConfig, Map, SceneView, SceneLayer,FeatureLayer, TimeSlider, Expand, BasemapGallery, Slice) => {
+    ], (Map, SceneView, SceneLayer, TimeSlider, Expand, BasemapGallery, Slice) => {
       let layerView;
       let originalRenderer = null;
       let token;
-      let sceneLayer;
       const map = new Map({
-        basemap: "topo-vector"
-       
+        basemap: "topo-vector",
+        ground: "world-elevation"
       });
       const view = new SceneView({
         container: "viewDiv",
@@ -181,30 +88,101 @@ body,
       view.ui.add(bgExpand, "top-right");
       view.ui.add(sliceWidget, "top-right");
 
-    
-          async function getPortalItem() {
-            
 
-           /* esriConfig.request.interceptors.push({
-                  urls: ["https://esri.aecon.com/portal"],
-                  before: function (params) {
-                  params.requestOptions.query = params.requestOptions.query || {};
-                  params.requestOptions.query.token = token;
-                  }
-                  });*/
-              const sceneLayer = new SceneLayer({
-              url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
-                //url: "https://esriserver.aecon.com/server/rest/services/Hosted/SRS_LES_RCD_4D_WSL1/SceneServer/layers"
-            
+/////////////////////////////////////// Portal ///////////////////////////////////////
+
+// Step 1: Get a token using the built-in username and password
+    async function getToken() {
+            const portalUrl = "https://esri.aecon.com/portal/";
+            const username = "amirnbr";
+            const password = "Amir1994";
+
+            const tokenUrl = `${portalUrl}/sharing/rest/generateToken`;
+            const tokenParams = new URLSearchParams({
+              username,
+              password,
+              referer: window.location.origin,
+              f: "json"
             });
 
-        
-            console.log("sceneLayer=", sceneLayer);
+            try {
+              const response = await fetch(tokenUrl, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: tokenParams
+              });
 
-            
-           
-            const sceneLayer_transp = new SceneLayer({
-        url: "https://esriserver.aecon.com/server/rest/services/Hosted/DNNP_4D_WSL1/SceneServer/layers",
+              if (!response.ok) {
+                throw new Error("Failed to get token");
+              }
+
+              const data = await response.json();
+              return data.token;
+              
+            } catch (error) {
+              console.error("Error getting token:", error);
+              return null;
+            }
+          }
+          async function getPortalItem() {
+            const itemId = "32b1f7c1bc844e8f99b80d0b65f96320";
+            // Get the token
+            token = await getToken();
+            console.log("token=", token);
+            if (!token) {
+              console.error("Failed to get token");
+              return;
+            }
+
+             // Use the token in the Authorization header
+            const itemUrl = "https://esri.aecon.com/portal/sharing/rest/content/items/32b1f7c1bc844e8f99b80d0b65f96320?f=pjson";
+            try {
+              const response = await fetch(itemUrl, {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              });
+              response.setHeader("Access-Control-Allow-Origin", "*");
+              response.setHeader("Access-Control-Allow-Credentials", "true");
+              response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+              response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+              console.log("response 1:", response);
+              if (!response.ok) {
+                throw new Error("Failed to fetch portal item");
+              }
+
+              const scene_data = await response.json();
+              console.log("Portal Item:", scene_data);
+            } catch (error) {
+              console.error("Error fetching portal item:", error);
+            }
+
+          }
+          getPortalItem();
+/////////////////////////////////////// End Portal ///////////////////////////////////////
+
+      view.when(function () {
+        map.basemap.baseLayers.getItemAt(0).opacity = 0.5;
+        map.ground.opacity = 0.7;
+        map.ground.navigationConstraint = {
+          type: "none"
+        };
+      });
+
+      //32b1f7c1bc844e8f99b80d0b65f96320
+      console.log("***Token=", token);
+      const sceneLayer = new SceneLayer({
+        url: "https://esriserver.aecon.com/server/rest/services/Hosted/Final_DNNP_4D_ver2_WSL1/SceneServer/layers/0",
+        popupEnabled: true,
+        customParameters: {
+                    "token": token
+                }
+        
+      });
+      const sceneLayer_transp = new SceneLayer({
+        url: "https://esriserver.aecon.com/server/rest/services/Hosted/Final_DNNP_4D_ver2_WSL1/SceneServer/layers/0",
         renderer: {
           type: "simple",
           symbol: {
@@ -229,61 +207,6 @@ body,
       });
       map.add(sceneLayer_transp);
       map.add(sceneLayer);
-      let minDate = Number.MAX_SAFE_INTEGER;
-      let maxDate = Number.MIN_SAFE_INTEGER;
-      const query = sceneLayer.createQuery();
-      query.outFields = ["*"];
-      sceneLayer.queryFeatures(query).then((result) => {
-        if (result.features.length > 0) {
-          const allFeatures = result.features;
-          allFeatures.forEach(function (feature) {
-            const fieldValue = feature.attributes["planned_start_date"];
-            // Find the min and max dates
-            if (fieldValue < minDate) {
-              minDate = fieldValue;
-            }
-            if (fieldValue > maxDate) {
-              maxDate = fieldValue;
-            }
-          });
-          const formattedMinDate = getFormattedDate(minDate);
-          const formattedMaxDate = getFormattedDate(maxDate);
-          const oneDay = 5 * 24 * 60 * 60 * 1000; 
-          maxDate2 = new Date(maxDate);
-          const newMaxDate = new Date(maxDate2.getTime() + oneDay);
-          timeSlider.fullTimeExtent = {
-            start: new Date(minDate),
-            end: new Date(newMaxDate)
-          };
-          timeSlider.watch("timeExtent", (newValue, oldValue, propertyName, target) => {
-            if (oldValue) {
-              excludedFeatures = allFeatures.filter((feature) => {
-                return feature.attributes["planned_start_date"] > newValue.end.getTime();
-              });
-              const excludedObjectIds = excludedFeatures.map((feature) => {
-                return feature.attributes[sceneLayer.objectIdField];
-              });
-              sceneLayer.excludeObjectIds = excludedObjectIds;
-            }
-          });
-          view.ui.add(timeSlider, "bottom");
-        } else {
-          
-        }
-      }).catch(function (error) {
-        console.error(error);
-      });
-          }
-          
-          getPortalItem();
-      view.when(function () {
-        map.basemap.baseLayers.getItemAt(0).opacity = 0.5;
-        map.ground.opacity = 0.7;
-        map.ground.navigationConstraint = {
-          type: "none"
-        };
-      });
-
       function getFormattedDate(dateInt) {
         const date = new Date(dateInt);
         const day = date.getDate();
@@ -315,9 +238,9 @@ body,
               break;
             case "extent":
               element.parentNode.setAttribute("style", "width:3px");
-            
+              // Set the default value for min phase
               let minPhaseFeature = 1;
-              
+              // Find the minimum phase value from the excluded features
               if (excludedFeatures.length > 0) {
                 minPhaseFeature = excludedFeatures.reduce((min, feature) => {
                   const phaseValue = parseInt(feature.attributes["phasing_data_url"].replace("Phase ", ""));
@@ -327,11 +250,64 @@ body,
               }else{
                 element.innerText = "" ;
               }
- 
+            
+            
           }
         }
       });
-
+      view.whenLayerView(sceneLayer).then((lv) => {
+        layerView = lv;
+        originalRenderer = sceneLayer.renderer;
+      });
+      let minDate = Number.MAX_SAFE_INTEGER;
+      let maxDate = Number.MIN_SAFE_INTEGER;
+      const query = sceneLayer.createQuery();
+      query.outFields = ["*"];
+      sceneLayer.queryFeatures(query).then((result) => {
+        console.log("Number of elements in this model: " + result.features.length);
+        console.log("result: ", result);
+        if (result.features.length > 0) {
+          const allFeatures = result.features;
+          allFeatures.forEach(function (feature) {
+            const fieldValue = feature.attributes["planned_start_date"];
+            // Find the min and max dates
+            if (fieldValue < minDate) {
+              minDate = fieldValue;
+            }
+            if (fieldValue > maxDate) {
+              maxDate = fieldValue;
+            }
+          });
+          const formattedMinDate = getFormattedDate(minDate);
+          const formattedMaxDate = getFormattedDate(maxDate);
+          console.log("Min Date: ", formattedMinDate);
+          console.log("Max Date: ", formattedMaxDate);
+          // Add one day to the maxDate
+          const oneDay = 5 * 24 * 60 * 60 * 1000; // One day in milliseconds
+          maxDate2 = new Date(maxDate);
+          const newMaxDate = new Date(maxDate2.getTime() + oneDay);
+          timeSlider.fullTimeExtent = {
+            start: new Date(minDate),
+            end: new Date(newMaxDate)
+          };
+          timeSlider.watch("timeExtent", (newValue, oldValue, propertyName, target) => {
+            if (oldValue) {
+              excludedFeatures = allFeatures.filter((feature) => {
+                return feature.attributes["planned_start_date"] > newValue.end.getTime();
+              });
+              const excludedObjectIds = excludedFeatures.map((feature) => {
+                return feature.attributes[sceneLayer.objectIdField];
+              });
+              sceneLayer.excludeObjectIds = excludedObjectIds;
+            }
+          });
+          view.ui.add(timeSlider, "bottom");
+        } else {
+          console.log("No features found.");
+        }
+      }).catch(function (error) {
+        console.error("Error querying features: ", error);
+      });
     });
   </script>
 </body>
