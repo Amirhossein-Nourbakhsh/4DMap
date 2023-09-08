@@ -168,12 +168,11 @@
 
 esriId.registerOAuthInfos([info]);
 esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
-  displayItems();
+  
   getPortalItem();
   }).catch(() => {
     // Anonymous view
-    anonPanelElement.style.display = "block";
-    personalPanelElement.style.display = "none";
+    
     console.log("################Inside checkSignInStatus");
     
   });
