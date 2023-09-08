@@ -43,8 +43,11 @@
       "esri/widgets/TimeSlider",
       "esri/widgets/Expand",
       "esri/widgets/BasemapGallery",
-      "esri/widgets/Slice"
-    ], (Map, SceneView, SceneLayer, TimeSlider, Expand, BasemapGallery, Slice) => {
+      "esri/widgets/Slice",
+      "esri/identity/OAuthInfo",
+      "esri/identity/IdentityManager",
+      "esri/portal/PortalItem"
+    ], (Map, SceneView, SceneLayer, TimeSlider, Expand, BasemapGallery, Slice, OAuthInfo, esriId, PortalItem) => {
       let layerView;
       let originalRenderer = null;
       let token;
@@ -91,76 +94,89 @@
 
 /////////////////////////////////////// Portal ///////////////////////////////////////
 
-// Step 1: Get a token using the built-in username and password
-    async function getToken() {
-            const portalUrl = "https://esri.aecon.com/portal/";
-            const username = "amirnbr";
-            const password = "Amir1994";
 
-            const tokenUrl = `${portalUrl}/sharing/rest/generateToken`;
-            const tokenParams = new URLSearchParams({
-              username,
-              password,
-              referer: window.location.origin,
-              f: "json"
+           function getPortalItem() {
+            const itemId = "8692270d4b2a43d6a306044e25e4fa74";
+            // Get the token
+            var portalUrl = "https://esri.aecon.com/portal";
+            // Create a new Portal object
+            var portal = new Portal();
+            // Set the portal URL
+            portal.url = portalUrl;
+           
+            portal.authMode = "immediate";
+            var portalItem = new PortalItem(portal);
+            portalItem.load(itemID).then(function () {
+           
+                console.log("Title: " + portalItem.title);
+                console.log("Type: " + portalItem.type);
+
+                // Access the item's data or perform other operations as needed
+                // For example, you can access item data using portalItem.fetchData()
+            }).catch(function (error) {
+              console.error("Error loading item:", error);
+            });
+                
+            var sceneLayer = new SceneLayer({
+              portalItem: portalItem,
             });
 
-            try {
-              const response = await fetch(tokenUrl, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: tokenParams
-              });
-
-              if (!response.ok) {
-                throw new Error("Failed to get token");
-              }
-
-              const data = await response.json();
-              return data.token;
-              
-            } catch (error) {
-              console.error("Error getting token:", error);
-              return null;
-            }
-          }
-          async function getPortalItem() {
-            const itemId = "32b1f7c1bc844e8f99b80d0b65f96320";
-            // Get the token
-            token = await getToken();
-            console.log("token=", token);
-            if (!token) {
-              console.error("Failed to get token");
-              return;
-            }
+            const sceneLayer_transp = new SceneLayer({
+              portalItem: portalItem,
+              renderer: {
+                type: "simple",
+                symbol: {
+                  type: "mesh-3d",
+                  symbolLayers: [
+                    {
+                      type: "fill",
+                      material: {
+                        color: [0, 0, 0, 0.05],
+                        colorMixMode: "replace"
+                      },
+                      edges: {
+                        type: "solid",
+                        color: [0, 0, 0, 0.3],
+                        size: 1
+                      }
+                    }
+                  ]
+                }
+              },
+              popupEnabled: true
+            });
+           
 
              // Use the token in the Authorization header
             const itemUrl = "https://esri.aecon.com/portal/sharing/rest/content/items/32b1f7c1bc844e8f99b80d0b65f96320?f=pjson";
-            try {
-              const response = await fetch(itemUrl, {
-                headers: {
-                  Authorization: `Bearer ${token}`
-                }
-              });
-              response.setHeader("Access-Control-Allow-Origin", "*");
-              response.setHeader("Access-Control-Allow-Credentials", "true");
-              response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-              response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-              console.log("response 1:", response);
-              if (!response.ok) {
-                throw new Error("Failed to fetch portal item");
-              }
-
-              const scene_data = await response.json();
-              console.log("Portal Item:", scene_data);
-            } catch (error) {
-              console.error("Error fetching portal item:", error);
-            }
+            
 
           }
-          getPortalItem();
+          
+
+  /////////////////////// Contect to OAuth ///////////////////////////////////
+  const info = new OAuthInfo({
+  // Swap this ID out with registered application ID
+  appId: "zeaskCEho8RxELMq",
+  // Uncomment the next line and update if using your own portal
+   portalUrl: "https://esri.aecon.com/portal",
+  // Uncomment the next line to prevent the user's signed in state from being shared with other apps on the same domain with the same authNamespace value.
+  // authNamespace: "portal_oauth_inline",
+  flowType: "auto", // default that uses two-step flow
+  popup: false
+});
+
+esriId.registerOAuthInfos([info]);
+esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
+  displayItems();
+  getPortalItem();
+  }).catch(() => {
+    // Anonymous view
+    anonPanelElement.style.display = "block";
+    personalPanelElement.style.display = "none";
+    console.log("################Inside checkSignInStatus");
+    
+  });
 /////////////////////////////////////// End Portal ///////////////////////////////////////
 
       view.when(function () {
@@ -170,7 +186,7 @@
           type: "none"
         };
       });
-
+      
       //32b1f7c1bc844e8f99b80d0b65f96320
       console.log("***Token=", token);
       const sceneLayer = new SceneLayer({
@@ -181,30 +197,7 @@
                 }
         
       });
-      const sceneLayer_transp = new SceneLayer({
-        url: "https://esriserver.aecon.com/server/rest/services/Hosted/Final_DNNP_4D_ver2_WSL1/SceneServer/layers/0",
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "mesh-3d",
-            symbolLayers: [
-              {
-                type: "fill",
-                material: {
-                  color: [0, 0, 0, 0.05],
-                  colorMixMode: "replace"
-                },
-                edges: {
-                  type: "solid",
-                  color: [0, 0, 0, 0.3],
-                  size: 1
-                }
-              }
-            ]
-          }
-        },
-        popupEnabled: true
-      });
+      
       map.add(sceneLayer_transp);
       map.add(sceneLayer);
       function getFormattedDate(dateInt) {
