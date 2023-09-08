@@ -97,6 +97,7 @@
 
            function getPortalItem() {
             const itemId = "8692270d4b2a43d6a306044e25e4fa74";
+            const itemUrl2 = "https://esriserver.aecon.com/server/rest/services/Hosted/Final_DNNP_4D_ver2_WSL1/SceneServer/layers/0";
             // Get the token
             var portalUrl = "https://esri.aecon.com/portal";
             // Create a new Portal object
@@ -118,11 +119,11 @@
             });
                 
             var sceneLayer = new SceneLayer({
-              portalItem: portalItem,
+              url: itemUrl2
             });
 
             const sceneLayer_transp = new SceneLayer({
-              portalItem: portalItem,
+              url: itemUrl2,
               renderer: {
                 type: "simple",
                 symbol: {
