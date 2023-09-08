@@ -173,9 +173,10 @@
 esriId.registerOAuthInfos([info]);
 esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
   
-  getPortalItem();
+  
   }).catch(() => {
     // Anonymous view
+  getPortalItem();
     
     console.log("################Inside checkSignInStatus");
     
