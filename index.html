@@ -192,16 +192,7 @@ esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
         };
       });
       
-      //32b1f7c1bc844e8f99b80d0b65f96320
-      console.log("***Token=", token);
-      const sceneLayer = new SceneLayer({
-        url: "https://esriserver.aecon.com/server/rest/services/Hosted/Final_DNNP_4D_ver2_WSL1/SceneServer/layers/0",
-        popupEnabled: true,
-        customParameters: {
-                    "token": token
-                }
-        
-      });
+      
       
       
       function getFormattedDate(dateInt) {
