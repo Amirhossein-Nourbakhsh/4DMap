@@ -141,7 +141,7 @@ esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
            
             portal.authMode = "immediate";
             var portalItem = new PortalItem(portal);
-            portalItem.load(itemID).then(function () {
+            portalItem.load(itemUrl2).then(function () {
            
                 console.log("Title: " + portalItem.title);
                 console.log("Type: " + portalItem.type);
