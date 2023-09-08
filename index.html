@@ -96,7 +96,40 @@
 
 
            function getPortalItem() {
-            const itemId = "8692270d4b2a43d6a306044e25e4fa74";
+            
+           
+
+             // Use the token in the Authorization header
+            const itemUrl = "https://esri.aecon.com/portal/sharing/rest/content/items/32b1f7c1bc844e8f99b80d0b65f96320?f=pjson";
+            
+
+          }
+          
+
+  /////////////////////// Contect to OAuth ///////////////////////////////////
+  const info = new OAuthInfo({
+  // Swap this ID out with registered application ID
+  appId: "zeaskCEho8RxELMq",
+  // Uncomment the next line and update if using your own portal
+   portalUrl: "https://esri.aecon.com/portal",
+  // Uncomment the next line to prevent the user's signed in state from being shared with other apps on the same domain with the same authNamespace value.
+  // authNamespace: "portal_oauth_inline",
+  flowType: "auto", // default that uses two-step flow
+  popup: false
+});
+
+esriId.registerOAuthInfos([info]);
+esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
+  
+  
+  }).catch(() => {
+    // Anonymous view
+    getPortalItem();
+    console.log("################Inside checkSignInStatus");
+    
+  });
+
+  const itemId = "8692270d4b2a43d6a306044e25e4fa74";
             const itemUrl2 = "https://esriserver.aecon.com/server/rest/services/Hosted/Final_DNNP_4D_ver2_WSL1/SceneServer/layers/0";
             // Get the token
             var portalUrl = "https://esri.aecon.com/portal";
@@ -149,38 +182,6 @@
 
             map.add(sceneLayer_transp);
             map.add(sceneLayer);
-           
-
-             // Use the token in the Authorization header
-            const itemUrl = "https://esri.aecon.com/portal/sharing/rest/content/items/32b1f7c1bc844e8f99b80d0b65f96320?f=pjson";
-            
-
-          }
-          
-
-  /////////////////////// Contect to OAuth ///////////////////////////////////
-  const info = new OAuthInfo({
-  // Swap this ID out with registered application ID
-  appId: "zeaskCEho8RxELMq",
-  // Uncomment the next line and update if using your own portal
-   portalUrl: "https://esri.aecon.com/portal",
-  // Uncomment the next line to prevent the user's signed in state from being shared with other apps on the same domain with the same authNamespace value.
-  // authNamespace: "portal_oauth_inline",
-  flowType: "auto", // default that uses two-step flow
-  popup: false
-});
-
-esriId.registerOAuthInfos([info]);
-esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
-  
-  
-  }).catch(() => {
-    // Anonymous view
-  getPortalItem();
-    
-    console.log("################Inside checkSignInStatus");
-    
-  });
 /////////////////////////////////////// End Portal ///////////////////////////////////////
 
       view.when(function () {
