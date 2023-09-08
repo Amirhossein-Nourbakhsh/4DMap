@@ -145,6 +145,9 @@
               },
               popupEnabled: true
             });
+
+            map.add(sceneLayer_transp);
+            map.add(sceneLayer);
            
 
              // Use the token in the Authorization header
@@ -197,8 +200,7 @@ esriId.checkSignInStatus(info.portalUrl + "/sharing").then(() => {
         
       });
       
-      map.add(sceneLayer_transp);
-      map.add(sceneLayer);
+      
       function getFormattedDate(dateInt) {
         const date = new Date(dateInt);
         const day = date.getDate();
